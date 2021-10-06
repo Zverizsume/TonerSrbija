@@ -1,65 +1,43 @@
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+import React from 'react'
+import { commerce } from '../lib/commerce'
+import Layout from '../components/layout'
+import Header from '../components/header'
+import Features from '../components/features'
+import Videos from '../components/videos'
+import Products from '../components/products'
 
-export default function Home() {
+const pageData = {
+  title: '',
+  desc: 'Početna strana',
+  canonical: 'https://toner-srbija.rs'
+}
+
+export default function Home( { mrchnt, prods, categories } ) {
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
+    <Layout pageData = { pageData } >
+      <Header />
+      <Features />
+      <Videos />
+      <Products products = { prods } categories = { categories } />
+    </Layout>
   )
+}
+
+export async function getServerSideProps(ctx) {
+
+  const merchant = await commerce.merchants.about()
+  const { data: products } = await commerce.products.list({limit: 200})
+  const { data: categories } = await commerce.categories.list()
+
+  let mrchnt = JSON.parse(JSON.stringify(merchant))
+  let prods = JSON.parse(JSON.stringify(products))
+
+  return {
+    props: {
+      mrchnt,
+      prods,
+      categories
+    }
+  }
 }
